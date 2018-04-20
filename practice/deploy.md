@@ -1,16 +1,123 @@
-# Deploying App
+<style>
+.code{
+    font-family: Consolas, monospace;
+}
+</style>
 
-When your app is complete and you are ready to let it out in the world, you need to build it for production.
+# <span id="contents">Testing and Deployment</span>
+
+- [Modules and Large App Development](#modules)
+- [Using Jet App as a Widget](#app_widget)
+- [Testing the App](#testing)
+- [Deploying the App](#production)
+
+## [<span id="modules">Modules and Large App Development &uarr;</span>](#contents)
+
+If you develop a large app, it has sense to spit it into multiple modules, which can be developed and tested separately and combined into a single app on the last step of development.
+
+Webix Jet toolchain has been updated to support such kind of development<sup><a href="#footnote1" id="origin1">*</a></sup>. If you are starting a new project, just use [jet-start](https://github.com/webix-hub/jet-start). If you want to update existing projects, you need to check **webpack.config.js** against the [latest one](https://github.com/webix-hub/jet-start/blob/master/webpack.config.js) and update the **scripts** section in [package.json](https://github.com/webix-hub/jet-start/blob/master/package.json).
+
+CLI commands:
+
+| Command                                       | What it does |
+|-----------------------------------------------|--------------|
+| <span class="code">npm run module</span>      | builds a standalone module, which is stored in **dist/{modulename}.js**; the module <b>doesn't</b> include _webix-jet_ |
+| <span class="code">npm run standalone</span>  | builds a standalone module, which is stored in **dist/{modulename}.js**; the module <b>includes all dependencies</b> |
+
+### When to use <span class="code">npm run module</span>
+
+If you want to use the module as a part of another Webix Jet app:
+
+- use <span class="code">**npm run module**</span>
+- import files in **dist** from the master project:
+
+```js
+// views/someview.js
+import OtherApp from "../other-app/dist/module/app-name";
+...
+config(){
+    return {
+        rows:[
+            ToolbarView,
+            OtherApp
+        ]
+    };
+}
+```
+
+### When to use <span class="code">npm run standalone</span>
+
+If you want to use the module on a page without Webix Jet:
+
+- use <span class="code">**npm run standalone**</span>
+- just include the resulting JS file:
+
+```html
+<!-- index.html -->
+<script src="../other-app/dist/full/app-name"></script>
+<script>
+    var app = new appname.default();
+    app.render(document.body);
+</script>
+```
+
+## [<span id="app_widget">Using Jet App as a Widget &uarr;</span>](#contents)
+
+The above ways are not compatible with other Webix widgets. To be able to use the app module as a widget, use **webix.protoUI()** in the app code:
+
+```js
+// sources/myapp.js
+import {JetApp} from "webix-jet";
+export default class MyApp extends JetApp {
+    //app config
+    constructor(){
+		super({
+			start: "/top/form",
+			router: EmptyRouter //!
+		});
+	}
+}
+// add this
+webix.protoUI({
+	name:"some-widget",
+	app: MyApp
+}, webix.ui.jetapp);
+```
+
+Now you can run **npm run standalone** and use the resulting app file like this:
+
+```html
+<script src="../other-app/dist/full/app-name"></script>
+<script>
+    webix.ui({ view:"some-widget" })
+</script>
+```
+
+This JetApp works as a widget and can be combined and sized like any other Webix UI widget.
+
+[Check out the demo >>](https://github.com/webix-hub/jet-demos/tree/master/sources/webixview.js)
+
+## [<span id="testing">Testing the App &uarr;</span>](#contents)
+
+To check the quality of the source code, run the following command:
+
+```bash
+npm run lint
+```
+
+## [<span id="production">Deploying the App &uarr;</span>](#contents)
+
+When your app is complete, you need to build it for production.
 
 If you are using *webpack.config.js* from the **jet-start** project, you can run either of these commands:
 
-```
+```bash
 npm run build
 ```
 
 or
 
-```
+```bash
 webpack --env.production true
 ``` 
 
@@ -22,10 +129,6 @@ By default, **index.html** uses the CDN version of Webix. If you are using Webix
 
 After building an app, you need to include **webix.js** and **codebase/myapp.js**. There are no extra dependencies.
 
-## Testing App
-
-To check the quality of the source code, run the following command:
-
-```
-npm run lint
-```
+- - -
+<a id="footnote1" href="#origin1">* &uarr;</a>:
+Starting with Webix Jet 1.5

@@ -117,9 +117,9 @@ Successor class:
 ```js
 import Toolbar from "views/toolbar";
 export default class BiggerToolbar extends Toolbar {
-   init(view){
-      view.addView({view:"button", value:"Save"});
-   }
+    init(view){
+        view.addView({view:"button", value:"Save"});
+    }
 }
 ```
 
@@ -640,6 +640,8 @@ var app2 = new JetApp({
 As a result, this is a two-level app.
 
 [Check out the demo >>](https://github.com/webix-hub/jet-demos/blob/master/sources/viewapp.js).
+
+Jet apps can also behave as Webix widgets, for details, check ["Deploying App"](../practice/deploy.md).
 
 <!-- footnotes -->
 - - -
